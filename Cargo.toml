@@ -1,0 +1,23 @@
+[package]
+edition = "2021"
+name = "pygamer-test"
+version = "0.1.0"
+
+[patch.crates-io]
+pygamer = {path = "../atsamd/boards/pygamer"}
+
+[dependencies]
+cortex-m = "0.7.7"
+embedded-graphics = "0.8.1"
+pygamer = "0.11.0"
+st7735-lcd = "0.10.0"
+
+[profile.dev]
+debug = true 
+incremental = false 
+lto = "thin" # thin for debug speed
+opt-level = 2 # uncomment for neopixel functionality during debug
+
+[profile.release]
+lto = "fat"
+opt-level = 's'

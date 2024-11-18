@@ -1,2 +1,2 @@
-# pygamer-tests
-Various test programs for the PyGamer
+Various test programs for the PyGamer, which are in different branches.
+
