@@ -6,6 +6,7 @@ version = "0.1.0"
 [patch.crates-io]
 atsamd-hal = {path = "../atsamd/hal"}
 pygamer = {path = "../atsamd/boards/pygamer"}
+rtic-time = {path = "../rtic/rtic-time"}
 
 [dependencies]
 atsamd-hal = {version = "0.18.2", features = ["rtic"]}
@@ -14,6 +15,14 @@ embedded-graphics = "0.8.1"
 pygamer = {version = "0.11.0", features = ["rt"]}
 rtic = {version = "2.1.1", features = ["thumbv7-backend"]}
 rtic-monotonics = {version = "2.0.3", features = ["cortex-m-systick"]}
+
+[features]
+clock1k = []
+clock32k = []
+debug = []
+mode0 = []
+mode1 = []
+systick = []
 
 [profile.dev]
 debug = true 
