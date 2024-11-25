@@ -9,10 +9,10 @@ pygamer = {path = "../atsamd/boards/pygamer"}
 rtic-time = {path = "../rtic/rtic-time"}
 
 [dependencies]
-atsamd-hal = {version = "0.18.2", features = ["rtic"]}
+atsamd-hal = {version = "0.19", features = ["rtic"]}
 cortex-m = {version = "0.7.7", features = ["critical-section-single-core"]}
 embedded-graphics = "0.8.1"
-pygamer = {version = "0.11.0", features = ["rt"]}
+pygamer = {version = "0.12.0", features = ["rt"]}
 rtic = {version = "2.1.1", features = ["thumbv7-backend"]}
 rtic-monotonics = {version = "2.0.3", features = ["cortex-m-systick"]}
 

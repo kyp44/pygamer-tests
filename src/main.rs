@@ -11,7 +11,7 @@ use embedded_graphics::{mono_font, text};
 use pygamer::hal::clock::GenericClockController;
 use pygamer::hal::delay::Delay;
 use pygamer::hal::prelude::*;
-use pygamer::{DisplayDriver, Pins};
+use pygamer::{pins::DisplayDriver, Pins};
 use rtic::Mutex;
 
 mod panic_handler;
@@ -33,7 +33,7 @@ type _ClockRate = rtc_clock::Clock1k;
 type _ClockRate = rtc_clock::Clock32k;
 
 #[cfg(feature = "systick")]
-rtic_monotonics::systick_monotonic!(Mono, 20);
+rtic_monotonics::systick_monotonic!(Mono, 200);
 #[cfg(feature = "mode0")]
 rtc_mode0_monotonic!(Mono, _ClockRate, rtc_clock::ClockInternal);
 #[cfg(feature = "mode1")]
