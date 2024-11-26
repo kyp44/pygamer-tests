@@ -1,0 +1,25 @@
+[workspace]
+members = [
+  "shared",
+  "basic",
+  "hal-rtc-test",
+  "monotonic-test-basic",
+  "monotonic-test-stress",
+  "monotonic-count-sequence",
+]
+resolver = "2"
+
+[patch.crates-io]
+atsamd-hal = {path = "../atsamd/hal"}
+pygamer = {path = "../atsamd/boards/pygamer"}
+rtic-time = {path = "../rtic/rtic-time"}
+
+[profile.dev]
+debug = true 
+incremental = false 
+lto = "thin" # thin for debug speed
+opt-level = 2 # uncomment for neopixel functionality during debug
+
+[profile.release]
+lto = "fat"
+opt-level = 's'
