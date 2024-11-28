@@ -4,11 +4,11 @@ name = "shared"
 version = "0.1.0"
 
 [dependencies]
-atsamd-hal = {version = "0.19", features = ["rtic"], optional = true}
+atsamd-hal = {version = "0.20", features = ["rtic"], optional = true}
 cortex-m = {version = "0.7.7", features = ["critical-section-single-core"]}
 embedded-graphics = "0.8.1"
 fugit = "0.3.7"
-pygamer = {version = "0.12.0", features = ["rt"]}
+pygamer = {version = "0.13.0", features = ["rt"]}
 rtic = {version = "2.1.1", features = ["thumbv7-backend"], optional = true}
 rtic-monotonics = {version = "2.0.3", features = ["cortex-m-systick"], optional = true}
 

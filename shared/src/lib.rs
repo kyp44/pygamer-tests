@@ -42,6 +42,19 @@ pub struct SetupPackage {
 
 #[inline]
 pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> SetupPackage {
+    // NOTE: Would like to use the v2 of the clock module, but this is not yet integrated
+    // into the rest of the HAL.
+    /* let (mut buses, clocks, tokens) = clock_system_at_reset(
+        peripherals.oscctrl,
+        peripherals.osc32kctrl,
+        peripherals.gclk,
+        peripherals.mclk,
+        &mut peripherals.nvmctrl,
+    ); */
+    // TODO: Maybe we can use this with this delay instead since it should be compatible:
+    // https://atsamd-rs.github.io/docs/samd51n/thumbv7em-none-eabihf/doc/atsamd_hal/delay/struct.Delay.html
+    // There are also v1 compatibility conversions for these: https://atsamd-rs.github.io/docs/samd51n/thumbv7em-none-eabihf/doc/atsamd_hal/clock/v2/pclk/struct.Pclk.html
+
     let mut clocks = GenericClockController::with_internal_32kosc(
         peripherals.gclk,
         &mut peripherals.mclk,
