@@ -1,0 +1,6 @@
+{
+    // Annoyingly, ths is bugged: https://github.com/rust-lang/rust-analyzer/issues/18141
+    "rust-analyzer.check.workspace": false,
+    // Which necessitates this:
+    "rust-analyzer.check.overrideCommand": ["cargo", "check", "--message-format=json-diagnostic-rendered-ansi", "--package=hal-rtc-test"],
+}
