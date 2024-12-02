@@ -4,6 +4,7 @@ members = [
   "basic",
   "hal-rtc-test",
   "monotonic-test-basic",
+  "monotonic-test-disable-pend",
   "monotonic-test-stress",
   "monotonic-count-sequence",
 ]
