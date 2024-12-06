@@ -30,7 +30,10 @@ mod app {
         let mut pkg = setup(cx.device, cx.core);
 
         // Start the monotonic
-        Mono::start(pkg.rtc, &mut pkg.mclk, &mut pkg.osc32kctrl);
+        Mono::start(pkg.rtc);
+
+        // Display selected monotonic and clock
+        display_monotonic_info(&mut pkg.display);
 
         test_1::spawn().ok().unwrap();
 

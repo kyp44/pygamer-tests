@@ -11,6 +11,8 @@ use pygamer::pins::DisplayDriver;
 use rtic::Mutex;
 use shared::prelude::*;
 
+const BASE_PERIOD_MS: u32 = 250;
+
 async fn test_task<D: Mutex<T = DisplayDriver>>(
     mut display: D,
     task_num: u8,
@@ -74,12 +76,10 @@ mod app {
         let mut pkg = setup(cx.device, cx.core);
 
         // Start the monotonic
-        Mono::general_start(
-            pkg.delay.free(),
-            pkg.rtc,
-            &mut pkg.mclk,
-            &mut pkg.osc32kctrl,
-        );
+        Mono::general_start(pkg.delay.free(), pkg.rtc);
+
+        // Display selected monotonic and clock
+        display_monotonic_info(&mut pkg.display);
 
         test_1::spawn().ok().unwrap();
         test_2::spawn().ok().unwrap();
@@ -106,21 +106,21 @@ mod app {
 
     #[task(priority = 1, shared=[display])]
     async fn test_1(cx: test_1::Context) {
-        test_task(cx.shared.display, 1, 250, Some(1)).await
+        test_task(cx.shared.display, 1, BASE_PERIOD_MS, Some(1)).await
     }
 
     #[task(priority = 1, shared=[display])]
     async fn test_2(cx: test_2::Context) {
-        test_task(cx.shared.display, 2, 500, Some(2)).await
+        test_task(cx.shared.display, 2, BASE_PERIOD_MS * 2, Some(2)).await
     }
 
     #[task(priority = 1, shared=[display])]
     async fn test_3(cx: test_3::Context) {
-        test_task(cx.shared.display, 3, 750, Some(3)).await
+        test_task(cx.shared.display, 3, BASE_PERIOD_MS * 3, Some(3)).await
     }
 
     #[task(priority = 1, shared=[display])]
     async fn test_4(cx: test_4::Context) {
-        test_task(cx.shared.display, 4, 1000, Some(4)).await;
+        test_task(cx.shared.display, 4, BASE_PERIOD_MS * 4, Some(4)).await;
     }
 }
