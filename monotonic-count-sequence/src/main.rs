@@ -43,13 +43,11 @@ mod app {
     fn init(cx: init::Context) -> (Shared, Local) {
         let mut pkg = setup(cx.device, cx.core);
 
+        // Display selected monotonic and clock
+        display_monotonic_info(&mut pkg.display);
+
         // Start the monotonic
-        Mono::general_start(
-            pkg.delay.free(),
-            pkg.rtc,
-            &mut pkg.mclk,
-            &mut pkg.osc32kctrl,
-        );
+        Mono::general_start(pkg.delay.free(), pkg.rtc);
 
         // Show the count sequence
         let mut counts = [0; NUM_SAMPLES];

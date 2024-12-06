@@ -2,10 +2,10 @@
 members = [
   "shared",
   "basic",
-  "hal-rtc-test",
-  "monotonic-test-basic",
-  "monotonic-test-disable-pend",
-  "monotonic-test-stress",
+  "hal-rtc",
+  "monotonic-basic",
+  "monotonic-disable-pend",
+  "monotonic-stress",
   "monotonic-count-sequence",
 ]
 resolver = "2"

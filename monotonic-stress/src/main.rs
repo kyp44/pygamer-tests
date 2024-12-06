@@ -8,6 +8,7 @@ use shared::prelude::*;
 
 mod tasks;
 
+use tasks::neopixels_task;
 use tasks::{clock_task, test_task};
 
 const BASE_PERIOD_MS: u32 = 1000;
@@ -25,6 +26,7 @@ mod app {
     #[local]
     struct Local {
         red_led: RedLed,
+        neopixels: NeoPixelsDriver,
     }
 
     #[init]
@@ -32,13 +34,13 @@ mod app {
         let mut pkg = setup(cx.device, cx.core);
 
         // Start the monotonic
-        Mono::general_start(
-            pkg.delay.free(),
-            pkg.rtc,
-            &mut pkg.mclk,
-            &mut pkg.osc32kctrl,
-        );
+        Mono::general_start(pkg.delay.free(), pkg.rtc);
 
+        // Display selected monotonic and clock
+        display_monotonic_info(&mut pkg.display);
+
+        #[cfg(feature = "neopixels")]
+        test_neopixels::spawn().ok().unwrap();
         test_1::spawn().ok().unwrap();
         test_2::spawn().ok().unwrap();
         test_3::spawn().ok().unwrap();
@@ -815,6 +817,7 @@ mod app {
             },
             Local {
                 red_led: pkg.red_led,
+                neopixels: pkg.neopixels,
             },
         )
     }
@@ -825,6 +828,11 @@ mod app {
             rtic::export::wfi();
             cx.local.red_led.toggle().unwrap();
         }
+    }
+
+    #[task(priority = 1, local=[neopixels])]
+    async fn test_neopixels(cx: test_neopixels::Context) {
+        neopixels_task(cx.local.neopixels, BASE_PERIOD_MS).await
     }
 
     #[task(priority = 1, shared=[display])]

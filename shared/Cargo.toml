@@ -8,9 +8,11 @@ atsamd-hal = {version = "0.20", features = ["rtic"], optional = true}
 cortex-m = {version = "0.7.7", features = ["critical-section-single-core"]}
 embedded-graphics = "0.8.1"
 fugit = "0.3.7"
-pygamer = {version = "0.13.0", features = ["rt"]}
-rtic = {version = "2.1.1", features = ["thumbv7-backend"], optional = true}
+pygamer = {version = "0.13.1", features = ["rt"]}
+rtic = {version = "2.1.2", features = ["thumbv7-backend"], optional = true}
 rtic-monotonics = {version = "2.0.3", features = ["cortex-m-systick"], optional = true}
+smart-leds = {version = "0.4", optional = true}
+ws2812-spi = {version = "0.5", features = ["mosi_idle_high"], optional = true}
 
 [features]
 clock1k = ["rtic"]
@@ -18,5 +20,6 @@ clock32k = ["rtic"]
 debug = ["rtic"]
 mode0 = ["rtic"]
 mode1 = ["rtic"]
+neopixels = ["dep:ws2812-spi", "dep:smart-leds", "pygamer/neopixel-spi"]
 rtic = ["dep:atsamd-hal", "dep:rtic"]
 systick = ["rtic", "dep:rtic-monotonics"]

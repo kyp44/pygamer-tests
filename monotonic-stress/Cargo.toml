@@ -4,7 +4,7 @@ name = "monotonic-test-stress"
 version = "0.1.0"
 
 [dependencies]
-shared = {path = "../shared", features = ["rtic"]}
+shared = {path = "../shared", features = ["rtic", "neopixels"]}
 
 [features]
 clock1k = ["shared/clock1k"]
@@ -12,4 +12,5 @@ clock32k = ["shared/clock32k"]
 debug = ["shared/debug"]
 mode0 = ["shared/mode0"]
 mode1 = ["shared/mode1"]
+neopixels = []
 systick = ["shared/systick"]

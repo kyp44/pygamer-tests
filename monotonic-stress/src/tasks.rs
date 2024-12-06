@@ -75,3 +75,24 @@ pub async fn clock_task<D: Mutex<T = DisplayDriver>>(mut display: D) -> ! {
         Mono::delay_ms(500).await;
     }
 }
+
+pub async fn neopixels_task<S: SmartLedsWrite<Color = RGB8>>(neopixels: &mut S, delay_ms: u32) -> !
+where
+    S::Error: core::fmt::Debug,
+{
+    let mut colors = [
+        RGB8::new(10, 0, 0),
+        RGB8::new(0, 10, 0),
+        RGB8::new(0, 0, 10),
+    ]
+    .into_iter()
+    .cycle();
+
+    loop {
+        neopixels.write(colors.clone().take(5)).unwrap();
+
+        colors.next().unwrap();
+
+        Mono::delay_ms(delay_ms).await;
+    }
+}
