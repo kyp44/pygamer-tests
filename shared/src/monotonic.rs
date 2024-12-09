@@ -49,21 +49,10 @@ impl Mono {
 }
 
 impl Mono {
-    pub fn general_start(
-        _syst: pac::SYST,
-        _rtc: pac::Rtc,
-        _mclk: &mut pac::Mclk,
-        _osc32kctrl: &mut pac::Osc32kctrl,
-    ) {
-        // Set the RTC clock source, which is no longer done within the monotonic
-        #[cfg(feature = "clock1k")]
-        _osc32kctrl.rtcctrl().write(|w| w.rtcsel().ulp1k());
-        #[cfg(feature = "clock32k")]
-        _osc32kctrl.rtcctrl().write(|w| w.rtcsel().ulp32k());
-
+    pub fn general_start(_syst: pac::SYST, _rtc: pac::Rtc) {
         #[cfg(feature = "systick")]
         Mono::start(_syst, 120_000_000);
         #[cfg(any(feature = "mode0", feature = "mode1"))]
-        Mono::start(_rtc, _mclk, _osc32kctrl);
+        Mono::start(_rtc);
     }
 }

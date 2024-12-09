@@ -29,15 +29,10 @@ mod app {
 
     #[init]
     fn init(cx: init::Context) -> (Shared, Local) {
-        let mut pkg = setup(cx.device, cx.core);
+        let pkg = setup(cx.device, cx.core);
 
         // Start the monotonic
-        Mono::general_start(
-            pkg.delay.free(),
-            pkg.rtc,
-            &mut pkg.mclk,
-            &mut pkg.osc32kctrl,
-        );
+        Mono::general_start(pkg.delay.free(), pkg.rtc);
 
         test_1::spawn().ok().unwrap();
         test_2::spawn().ok().unwrap();

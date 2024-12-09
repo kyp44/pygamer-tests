@@ -79,6 +79,19 @@ pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> S
 
     display.clear(Rgb565::WHITE).unwrap();
 
+    // TOOD: Use HAL to do this instead of taking the PAC references, maybe clocks v2 to require proof.
+    // Set the RTC clock source, which is no longer done within the monotonic
+    #[cfg(feature = "clock1k")]
+    peripherals
+        .osc32kctrl
+        .rtcctrl()
+        .write(|w| w.rtcsel().ulp1k());
+    #[cfg(feature = "clock32k")]
+    peripherals
+        .osc32kctrl
+        .rtcctrl()
+        .write(|w| w.rtcsel().ulp32k());
+
     SetupPackage {
         delay,
         display,
