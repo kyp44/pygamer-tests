@@ -16,9 +16,9 @@ type _ClockRate = rtc_clock::Clock32k;
 #[cfg(feature = "systick")]
 rtic_monotonics::systick_monotonic!(Mono, 200);
 #[cfg(feature = "mode0")]
-rtc_mode0_monotonic!(Mono, _ClockRate, rtc_clock::ClockInternal);
+rtc_mode0_monotonic!(Mono, _ClockRate);
 #[cfg(feature = "mode1")]
-rtc_mode1_monotonic!(Mono, _ClockRate, rtc_clock::ClockInternal);
+rtc_mode1_monotonic!(Mono, _ClockRate);
 
 #[cfg(any(feature = "systick", feature = "mode0"))]
 impl Mono {
