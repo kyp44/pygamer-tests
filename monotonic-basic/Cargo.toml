@@ -10,6 +10,4 @@ shared = {path = "../shared", features = ["rtic"]}
 clock1k = ["shared/clock1k"]
 clock32k = ["shared/clock32k"]
 debug = ["shared/debug"]
-mode0 = ["shared/mode0"]
-mode1 = ["shared/mode1"]
 systick = ["shared/systick"]
