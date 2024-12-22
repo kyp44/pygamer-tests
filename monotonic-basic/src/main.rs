@@ -17,7 +17,7 @@ async fn test_task<D: Mutex<T = DisplayDriver>>(
     mut display: D,
     task_num: u8,
     cycle_time_ms: u32,
-    task_id: Option<u8>,
+    task_id: Option<u32>,
 ) -> ! {
     let style = DisplayTextStyle::new(
         Point::new(10, 20 * (task_num + 1) as i32),

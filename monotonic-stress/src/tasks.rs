@@ -47,6 +47,9 @@ pub async fn test_task<D: Mutex<T = DisplayDriver>>(
                 .unwrap();
         });
 
+        #[cfg(feature = "debug")]
+        Mono::delay_ms_debug(delay_ms, position).await;
+        #[cfg(not(feature = "debug"))]
         Mono::delay_ms(delay_ms).await;
     }
 
