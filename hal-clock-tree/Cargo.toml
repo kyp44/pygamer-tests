@@ -1,0 +1,9 @@
+[package]
+edition = "2021"
+name = "hal-clock-tree"
+version = "0.1.0"
+
+[dependencies]
+cortex-m = "0.7.7"
+pygamer = "0.14.1"
+shared = {path = "../shared"}

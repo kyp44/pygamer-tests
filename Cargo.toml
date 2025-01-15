@@ -2,6 +2,7 @@
 members = [
   "shared",
   "basic",
+  "hal-clock-tree",
   "hal-rtc",
   "monotonic-basic",
   "monotonic-disable-pend",
@@ -13,7 +14,7 @@ resolver = "2"
 [patch.crates-io]
 atsamd-hal = {path = "../atsamd/hal"}
 pygamer = {path = "../atsamd/boards/pygamer"}
-rtic-time = {path = "../rtic/rtic-time"}
+#rtic-time = {path = "../rtic/rtic-time"}
 
 [profile.dev]
 debug = true 
