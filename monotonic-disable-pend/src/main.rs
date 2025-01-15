@@ -6,7 +6,6 @@
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::{mono_font, text};
-use hal::prelude::*;
 use shared::prelude::*;
 
 #[rtic::app(device = pygamer::pac, dispatchers = [EVSYS_0])]
@@ -65,7 +64,7 @@ mod app {
             mono_font::MonoTextStyleBuilder::new()
                 .font(&FONT)
                 .text_color(Rgb565::BLACK)
-                .background_color(Rgb565::WHITE)
+                .background_color(BACKGROUND_COLOR)
                 .build(),
             text::TextStyleBuilder::new()
                 .baseline(text::Baseline::Top)

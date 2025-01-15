@@ -3,7 +3,6 @@
 #![feature(let_chains)]
 #![feature(iter_advance_by)]
 
-use hal::prelude::*;
 use shared::prelude::*;
 
 mod tasks;

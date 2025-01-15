@@ -53,61 +53,83 @@ impl<'a, D, C> DisplayWriter<'a, D, C> {
             char_cursor: Point::zero(),
         }
     }
+
+    fn newline(&mut self) {
+        self.char_cursor.x = 0;
+        self.char_cursor.y += 1;
+    }
 }
 impl<D: DrawTarget<Color = C>, C: PixelColor> core::fmt::Write for DisplayWriter<'_, D, C> {
-    fn write_str(&mut self, mut s: &str) -> core::fmt::Result {
+    fn write_str(&mut self, s: &str) -> core::fmt::Result {
         let style = self.text_style;
 
-        loop {
-            if s.is_empty() {
-                break;
-            }
-            if let Some(cs) = style.char_box_size
-                && self.char_cursor.y >= cs.height as i32
-            {
-                break;
-            }
-
-            let (line_s, rem_s) = match style.char_box_size {
-                Some(cs) => {
-                    // Iterator of character indices in the current string
-                    let mut char_idxs = s.char_indices();
-
-                    // Advance by the number of characters left on the current line
-                    let _ = char_idxs.advance_by(cs.width as usize - self.char_cursor.x as usize);
-
-                    let idx = char_idxs.next().map(|t| t.0).unwrap_or(s.len());
-                    s.split_at_checked(idx).ok_or(core::fmt::Error)?
-                }
-                None => (s, ""),
-            };
-
-            text::Text::with_text_style(
-                line_s,
-                style.position
-                    + Point::new(
-                        self.char_cursor.x * style.character_style.font.character_size.width as i32,
-                        self.char_cursor.y
-                            * style.character_style.font.character_size.height as i32,
-                    ),
-                style.character_style,
-                style.text_style,
-            )
-            .draw(self.display)
-            .map_err(|_| core::fmt::Error)?;
-
-            // Update cursor
-            self.char_cursor.x += line_s.len() as i32;
-
+        // Iterate over lines
+        'lines: for (line_num, mut line) in s.lines().enumerate() {
             // Advance to the next line if applicable
-            if let Some(cs) = style.char_box_size
-                && self.char_cursor.x >= cs.width as i32
-            {
-                self.char_cursor.x = 0;
-                self.char_cursor.y += 1;
+            if line_num > 0 {
+                self.newline();
             }
 
-            s = rem_s;
+            // Display the line, adding a line break if we run out of space
+            loop {
+                if line.is_empty() {
+                    break;
+                }
+                // If we are outside our box then we do not want to display anything else
+                if let Some(cs) = style.char_box_size
+                    && self.char_cursor.y >= cs.height as i32
+                {
+                    break 'lines;
+                }
+
+                // First break the string at any newline
+                let (line_s, rem_s) = match style.char_box_size {
+                    Some(cs) => {
+                        // Iterator of character indices in the current string
+                        let mut char_idxs = line.char_indices();
+
+                        // Advance by the number of characters left on the current line
+                        let _ =
+                            char_idxs.advance_by(cs.width as usize - self.char_cursor.x as usize);
+
+                        let idx = char_idxs.next().map(|t| t.0).unwrap_or(line.len());
+                        line.split_at_checked(idx).ok_or(core::fmt::Error)?
+                    }
+                    None => (line, ""),
+                };
+
+                text::Text::with_text_style(
+                    line_s,
+                    style.position
+                        + Point::new(
+                            self.char_cursor.x
+                                * style.character_style.font.character_size.width as i32,
+                            self.char_cursor.y
+                                * style.character_style.font.character_size.height as i32,
+                        ),
+                    style.character_style,
+                    style.text_style,
+                )
+                .draw(self.display)
+                .map_err(|_| core::fmt::Error)?;
+
+                // Update cursor
+                self.char_cursor.x += line_s.len() as i32;
+
+                // Advance to the next line if applicable
+                if let Some(cs) = style.char_box_size
+                    && self.char_cursor.x >= cs.width as i32
+                {
+                    self.newline();
+                }
+
+                line = rem_s;
+            }
+        }
+
+        // If the last character is a newline, this would not be accounted for above
+        if s.ends_with("\n") {
+            self.newline();
         }
 
         Ok(())
@@ -159,7 +181,7 @@ fn panic(info: &PanicInfo) -> ! {
             .build(),
     );
 
-    let _ = write!(DisplayWriter::new(&mut display, &style), "{}", info);
+    let _ = write!(DisplayWriter::new(&mut display, &style), "{info}");
 
     loop {
         cortex_m::asm::wfi();

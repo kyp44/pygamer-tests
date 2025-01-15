@@ -6,7 +6,6 @@
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::{mono_font, text};
-use hal::ehal::delay::DelayNs;
 use pac::{CorePeripherals, Peripherals};
 use pygamer::entry;
 use shared::prelude::*;
@@ -37,7 +36,7 @@ fn main() -> ! {
     )
     .unwrap();
 
-    pkg.delay.delay_ms(2000);
+    pkg.delay.delay_ms(2000u16);
 
     // Do nothing
     panic!("Panic demonstration");

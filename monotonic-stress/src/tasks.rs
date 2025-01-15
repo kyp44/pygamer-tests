@@ -3,7 +3,6 @@ use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::primitives;
 use embedded_graphics::text;
-use hal::prelude::*;
 use pygamer::DisplayDriver;
 use rtic::Mutex;
 use shared::prelude::*;

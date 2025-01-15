@@ -4,5 +4,6 @@ name = "hal-rtc-test"
 version = "0.1.0"
 
 [dependencies]
+derive-new = "0.7.0"
 nb = "1.1.0"
-shared = {path = "../shared"}
+shared = {path = "../shared", features = ["clock1k"]}
