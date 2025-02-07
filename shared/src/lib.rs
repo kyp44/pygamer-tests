@@ -2,14 +2,16 @@
 #![feature(let_chains)]
 #![feature(iter_advance_by)]
 
+use display::DisplayTextStyle;
 use embedded_graphics::{
     mono_font::{self, MonoTextStyle},
     pixelcolor::Rgb565,
     prelude::*,
+    text,
 };
 use pygamer::{
     hal::{clock::GenericClockController, delay::Delay},
-    pac, DisplayDriver, Pins, RedLed,
+    pac, ButtonReader, DisplayDriver, Keys, Pins, RedLed,
 };
 
 mod display;
@@ -21,22 +23,38 @@ pub type NeoPixelsDriver = ws2812_spi::Ws2812<pygamer::pins::NeopixelSpi>;
 
 pub static DISPLAY_SIZE: Size = Size::new(160, 128);
 pub const FONT: mono_font::MonoFont = mono_font::ascii::FONT_5X8;
+pub const BACKGROUND_COLOR: Rgb565 = Rgb565::WHITE;
 
-pub static DISPLAY_TEXT_STYLE: MonoTextStyle<Rgb565> = mono_font::MonoTextStyleBuilder::new()
+pub static TEXT_STYLE: MonoTextStyle<Rgb565> = mono_font::MonoTextStyleBuilder::new()
     .font(&crate::FONT)
-    .text_color(Rgb565::WHITE)
-    .background_color(Rgb565::BLACK)
+    .text_color(Rgb565::BLACK)
+    .background_color(BACKGROUND_COLOR)
     .build();
+
+lazy_static::lazy_static! {
+    pub static ref DISPLAY_TEXT_STYLE: DisplayTextStyle<Rgb565> = DisplayTextStyle::new(
+        Point::zero(),
+        Some(DISPLAY_SIZE),
+        TEXT_STYLE,
+        text::TextStyleBuilder::new()
+            .baseline(text::Baseline::Top)
+            .build(),
+    );
+}
 
 pub mod prelude {
     pub use super::display::*;
     #[cfg(feature = "rtic")]
     pub use super::monotonic::{display_monotonic_info, Mono};
+    pub use super::ButtonReaderExt;
     #[cfg(feature = "neopixels")]
     pub use super::NeoPixelsDriver;
-    pub use super::{setup, SetupPackage, DISPLAY_SIZE, DISPLAY_TEXT_STYLE, FONT};
+    pub use super::{
+        setup, SetupPackage, BACKGROUND_COLOR, DISPLAY_SIZE, DISPLAY_TEXT_STYLE, FONT, TEXT_STYLE,
+    };
     pub use core::fmt::Write;
     pub use fugit::{ExtU32, ExtU32Ceil, ExtU64, ExtU64Ceil, RateExtU32, RateExtU64};
+    pub use lazy_static::lazy_static;
     #[cfg(feature = "neopixels")]
     pub use smart_leds::{SmartLedsWrite, RGB8};
 
@@ -47,9 +65,28 @@ pub mod prelude {
     #[cfg(feature = "rtic")]
     pub use rtic;
 }
+
+pub trait ButtonReaderExt {
+    /// Blocks until the A or Start button are pressed.
+    fn wait_for_button(&mut self);
+}
+impl ButtonReaderExt for ButtonReader {
+    fn wait_for_button(&mut self) {
+        'main: loop {
+            for event in self.events() {
+                match event {
+                    Keys::StartDown | Keys::ADown => break 'main,
+                    _ => {}
+                }
+            }
+        }
+    }
+}
+
 pub struct SetupPackage {
     pub delay: Delay,
     pub display: DisplayDriver,
+    pub button_reader: ButtonReader,
     #[cfg(feature = "neopixels")]
     pub neopixels: NeoPixelsDriver,
     pub red_led: RedLed,
@@ -96,7 +133,7 @@ pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> S
         )
         .unwrap();
 
-    display.clear(Rgb565::WHITE).unwrap();
+    display.clear(BACKGROUND_COLOR).unwrap();
 
     // TOOD: Use HAL to do this instead of taking the PAC references, maybe clocks v2 to require proof.
     // Set the RTC clock source, which is no longer done within the monotonic.
@@ -125,6 +162,7 @@ pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> S
     SetupPackage {
         delay,
         display,
+        button_reader: pins.buttons.init(),
         #[cfg(feature = "neopixels")]
         neopixels,
         red_led: pins.led_pin.into(),
