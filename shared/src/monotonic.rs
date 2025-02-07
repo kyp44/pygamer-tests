@@ -1,13 +1,15 @@
 use atsamd_hal::{rtc::rtic::rtc_clock, rtc_monotonic};
 use core::fmt::Write;
 use core::future::Future;
+use embedded_graphics::mono_font;
+use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::text;
 use pygamer::hal::prelude::*;
 use pygamer::{pac, DisplayDriver};
 
 use crate::display::{DisplayTextStyle, DisplayWriter};
-use crate::DISPLAY_TEXT_STYLE;
+use crate::BACKGROUND_COLOR;
 use crate::FONT;
 
 #[cfg(not(any(feature = "clock1k", feature = "clock32k")))]
@@ -64,7 +66,12 @@ pub fn display_monotonic_info(display: &mut DisplayDriver) {
     let style = DisplayTextStyle::new(
         Point::new(160 - FONT.character_size.width as i32 * 9, 128),
         None,
-        DISPLAY_TEXT_STYLE,
+        // Use inverted colors here
+        mono_font::MonoTextStyleBuilder::new()
+            .font(&crate::FONT)
+            .text_color(BACKGROUND_COLOR)
+            .background_color(Rgb565::BLACK)
+            .build(),
         text::TextStyleBuilder::new()
             .baseline(text::Baseline::Bottom)
             .build(),

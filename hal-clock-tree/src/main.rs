@@ -37,7 +37,7 @@ fn main() -> ! {
     let mut red_led: RedLed = pins.led_pin.into();
     red_led.set_high().unwrap();
 
-    //while !dpll0.is_ready() {}
+    while !dpll0.is_ready() {}
     let (_gclk0, _dfll, _dpll0) = clocks.gclk0.swap_sources(dfll, dpll0);
 
     red_led.set_low().unwrap();

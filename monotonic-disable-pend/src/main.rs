@@ -65,7 +65,7 @@ mod app {
             mono_font::MonoTextStyleBuilder::new()
                 .font(&FONT)
                 .text_color(Rgb565::BLACK)
-                .background_color(Rgb565::WHITE)
+                .background_color(BACKGROUND_COLOR)
                 .build(),
             text::TextStyleBuilder::new()
                 .baseline(text::Baseline::Top)
