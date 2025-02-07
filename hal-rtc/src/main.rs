@@ -80,7 +80,6 @@ fn main() -> ! {
     let mut rtc_per = Some(pkg.rtc);
 
     loop {
-        //let mut rtc = Rtc::count32_mode(rtc_per.take().unwrap(), 1024u32.Hz(), &mut pkg.mclk);
         let mut rtc = Rtc::count32_mode(rtc_per.take().unwrap(), 32768u32.Hz(), &mut pkg.mclk);
 
         // Counter value sequence
@@ -94,9 +93,7 @@ fn main() -> ! {
 
         // TODO Next test!
         let mut writer = wait_for_button(&mut pkg.display, &mut pkg.button_reader);
-        //rtc.reset_and_compute_prescaler(1u32.hours());
-        //rtc.reset_and_compute_prescaler(10u32.secs());
-        rtc.reset_and_compute_prescaler(1u32.hours());
+        rtc.reset_and_compute_prescaler(1.hours());
         writeln!(writer, "Reset with prescalar: {:?}", get_counts(&rtc)).unwrap();
 
         rtc_per = Some(rtc.free());

@@ -53,7 +53,7 @@ pub mod prelude {
         setup, SetupPackage, BACKGROUND_COLOR, DISPLAY_SIZE, DISPLAY_TEXT_STYLE, FONT, TEXT_STYLE,
     };
     pub use core::fmt::Write;
-    pub use fugit::{ExtU32, ExtU32Ceil, ExtU64, ExtU64Ceil, RateExtU32, RateExtU64};
+    pub use hal::prelude::*;
     pub use lazy_static::lazy_static;
     #[cfg(feature = "neopixels")]
     pub use smart_leds::{SmartLedsWrite, RGB8};
