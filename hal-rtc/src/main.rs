@@ -4,6 +4,7 @@
 #![feature(iter_advance_by)]
 
 use core::fmt::Write;
+use derive_new::new;
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::text;
@@ -12,9 +13,10 @@ use hal::rtc::{Count32Mode, Rtc};
 use nb::block;
 use pac::{CorePeripherals, Peripherals};
 use pygamer::{entry, ButtonReader, DisplayDriver};
+use shared::prelude::_embedded_hal_timer_CountDown as Countdown;
 use shared::prelude::*;
 
-const DELAY_SECS: u32 = 3;
+const DELAY_SECS: u64 = 3;
 const NUM_SAMPLES: usize = 50;
 
 fn wait_for_count_change(rtc: &Rtc<Count32Mode>) -> u32 {
@@ -31,27 +33,6 @@ fn wait_for_count_change(rtc: &Rtc<Count32Mode>) -> u32 {
     }
 }
 
-fn wait_for_button<'a>(
-    display: &'a mut DisplayDriver,
-    reader: &mut ButtonReader,
-) -> DisplayWriter<'a, DisplayDriver, Rgb565> {
-    text::Text::with_text_style(
-        "Press a button to continue...",
-        Point::new(0, (DISPLAY_SIZE.height - 1) as i32),
-        TEXT_STYLE,
-        text::TextStyleBuilder::new()
-            .baseline(text::Baseline::Bottom)
-            .build(),
-    )
-    .draw(display)
-    .unwrap();
-
-    reader.wait_for_button();
-    display.clear(BACKGROUND_COLOR).unwrap();
-
-    DisplayWriter::new(display, &DISPLAY_TEXT_STYLE)
-}
-
 fn get_counts(rtc: &Rtc<Count32Mode>) -> [u32; NUM_SAMPLES] {
     let mut counts = [0; NUM_SAMPLES];
 
@@ -63,6 +44,35 @@ fn get_counts(rtc: &Rtc<Count32Mode>) -> [u32; NUM_SAMPLES] {
     counts
 }
 
+#[derive(new)]
+struct ExecPackage {
+    display: DisplayDriver,
+    button_reader: ButtonReader,
+}
+impl ExecPackage {
+    pub fn reset_display(&mut self) -> DisplayWriter<DisplayDriver, Rgb565> {
+        self.display.clear(BACKGROUND_COLOR).unwrap();
+
+        DisplayWriter::new(&mut self.display, &DISPLAY_TEXT_STYLE)
+    }
+
+    fn wait_for_button(&mut self) -> DisplayWriter<DisplayDriver, Rgb565> {
+        text::Text::with_text_style(
+            "Press a button to continue...",
+            Point::new(0, (DISPLAY_SIZE.height - 1) as i32),
+            TEXT_STYLE,
+            text::TextStyleBuilder::new()
+                .baseline(text::Baseline::Bottom)
+                .build(),
+        )
+        .draw(&mut self.display)
+        .unwrap();
+
+        self.button_reader.wait_for_button();
+        self.reset_display()
+    }
+}
+
 #[entry]
 fn main() -> ! {
     let mut pkg = setup(
@@ -70,32 +80,51 @@ fn main() -> ! {
         CorePeripherals::take().unwrap(),
     );
 
-    // TODO: This is broken and panics, looking at the code, this makes total sense
-    // so that the code is not written correctly.
-    /* writeln!(writer, "Starting RTC timer for {DELAY_SECS} seconds").unwrap();
-    rtc.start(DELAY_SECS.secs());
-    block!(rtc.wait());
-    writeln!(writer, "Timer complete!").unwrap(); */
-
-    let mut rtc_per = Some(pkg.rtc);
+    let mut epkg = ExecPackage::new(pkg.display, pkg.button_reader);
+    let mut rtc_count = Some(Rtc::count32_mode(pkg.rtc, 32768u32.Hz(), &mut pkg.mclk));
 
     loop {
-        let mut rtc = Rtc::count32_mode(rtc_per.take().unwrap(), 32768u32.Hz(), &mut pkg.mclk);
+        let mut rtc = rtc_count.take().unwrap();
 
-        // Counter value sequence
-        let mut writer = DisplayWriter::new(&mut pkg.display, &DISPLAY_TEXT_STYLE);
+        // Basic counter value sequence
+        let mut writer = epkg.reset_display();
         writeln!(writer, "Basic counter test: {:?}", get_counts(&rtc)).unwrap();
 
         // Set counter test
-        let mut writer = wait_for_button(&mut pkg.display, &mut pkg.button_reader);
+        let mut writer = epkg.wait_for_button();
         rtc.set_count32(1_000);
         writeln!(writer, "Set counter test: {:?}", get_counts(&rtc)).unwrap();
 
-        // TODO Next test!
-        let mut writer = wait_for_button(&mut pkg.display, &mut pkg.button_reader);
+        // Set the presclar test, which slows the tick rate by a factor of 1024
+        let mut writer = epkg.wait_for_button();
+        writeln!(writer, "Slowing down the tick rate...").unwrap();
         rtc.reset_and_compute_prescaler(1.hours());
-        writeln!(writer, "Reset with prescalar: {:?}", get_counts(&rtc)).unwrap();
+        let counts = get_counts(&rtc);
+        let mut writer = epkg.reset_display();
+        writeln!(writer, "Reset with prescalar: {:?}", counts).unwrap();
 
-        rtc_per = Some(rtc.free());
+        // Periodic countdown timer test
+        let mut writer = epkg.wait_for_button();
+        writeln!(
+            writer,
+            "Starting periodic RTC timer for {DELAY_SECS} seconds..."
+        )
+        .unwrap();
+        rtc.enable_interrupt();
+        Countdown::start(&mut rtc, DELAY_SECS.secs());
+        block!(Countdown::wait(&mut rtc)).unwrap();
+        writeln!(writer, "Waiting another {DELAY_SECS} seconds...").unwrap();
+        block!(Countdown::wait(&mut rtc)).unwrap();
+        writeln!(writer, "Just one more delay of {DELAY_SECS} seconds...").unwrap();
+        block!(Countdown::wait(&mut rtc)).unwrap();
+        writeln!(writer, "Timer test complete!").unwrap();
+
+        // Now convert into clock mode
+        // TODO!
+
+        // Wait for button before looping
+        epkg.wait_for_button();
+
+        rtc_count = Some(rtc);
     }
 }
