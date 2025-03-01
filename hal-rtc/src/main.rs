@@ -181,7 +181,7 @@ fn main() -> ! {
         block!(Countdown::wait(&mut rtc)).unwrap();
         writeln!(writer, "One more delay of {DELAY_SECS} seconds...").unwrap();
         block!(Countdown::wait(&mut rtc)).unwrap();
-        writeln!(writer, "`Countdown` test complete!").unwrap();
+        writeln!(writer, "Periodic `Countdown` test complete!").unwrap();
 
         // Delay with the ehal `DelayNs` trait
         let mut writer = exec.wait_for_button();

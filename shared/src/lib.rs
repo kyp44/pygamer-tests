@@ -53,9 +53,10 @@ pub mod prelude {
     pub use super::monotonic::{display_monotonic_info, Mono};
     pub use super::ButtonReaderExt;
     #[cfg(feature = "neopixels")]
+    pub use super::NeoPixelsDriver;
     pub use super::{
-        setup, NeoPixelsDriver, SetupPackage, BACKGROUND_COLOR, DISPLAY_SIZE, DISPLAY_TEXT_STYLE,
-        FONT, RTC_CLOCK_RATE, TEXT_STYLE,
+        setup, SetupPackage, BACKGROUND_COLOR, DISPLAY_SIZE, DISPLAY_TEXT_STYLE, FONT,
+        RTC_CLOCK_RATE, TEXT_STYLE,
     };
     pub use core::fmt::Write;
     pub use hal::prelude::*;
@@ -103,8 +104,17 @@ pub struct SetupPackage {
 
 #[inline]
 pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> SetupPackage {
-    // NOTE: Would like to use the v2 of the clock module, but this is not yet integrated
-    // into the rest of the HAL.
+    // NOTE: We would like to use the v2 of the clock module, but this is not yet integrated
+    // into the rest of the HAL or the `pygamer` BSP. For example, the display `init` method
+    // below requires clock v1 parameters.
+    /* let (mut buses, clocks, tokens) = clock_system_at_reset(
+        peripherals.oscctrl,
+        peripherals.osc32kctrl,
+        peripherals.gclk,
+        peripherals.mclk,
+        &mut peripherals.nvmctrl,
+    ); */
+
     let mut clocks = GenericClockController::with_internal_32kosc(
         peripherals.gclk,
         &mut peripherals.mclk,
@@ -114,6 +124,8 @@ pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> S
     );
     let pins = Pins::new(peripherals.port).split();
     let mut delay = Delay::new(core.SYST, &mut clocks);
+    // Here is how this can be initialized using the clock v2 API instead
+    //let mut delay = Delay::new_with_source(core.SYST, clocks.gclk0);
 
     // Initialize the display
     let (mut display, _backlight) = pins
@@ -129,8 +141,7 @@ pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> S
 
     display.clear(BACKGROUND_COLOR).unwrap();
 
-    // TODO: Use HAL to do this instead of taking the PAC references.
-    // Note that the clocks v1 API cannot select the internal 32k clock!
+    // NOTE: Selecting the RTC clock requires the clocks v2 API on SAMx5x chips!
     #[cfg(feature = "clock1k")]
     peripherals
         .osc32kctrl
