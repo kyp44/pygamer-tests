@@ -166,6 +166,7 @@ fn main() -> ! {
         let _ = exec.show_counts(&mut rtc, "Basic counter test");
         rtc.set_count32(1_000);
         let _ = exec.show_counts(&mut rtc, "Set counter test");
+        // This should set set the prescalar to 1024
         rtc.reset_and_compute_prescaler(1.hours());
         let mut writer = exec.show_counts(&mut rtc, "Reset with prescalar");
 

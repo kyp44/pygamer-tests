@@ -16,8 +16,8 @@ smart-leds = {version = "0.4", optional = true}
 ws2812-spi = {version = "0.5", features = ["mosi_idle_high"], optional = true}
 
 [features]
-clock1k = ["rtic"]
-clock32k = ["rtic"]
+clock1k = []
+clock32k = []
 debug = ["rtic"]
 neopixels = ["dep:ws2812-spi", "dep:smart-leds", "pygamer/neopixel-spi"]
 rtic = ["dep:atsamd-hal", "dep:rtic"]
