@@ -1,4 +1,4 @@
-use atsamd_hal::{rtc::rtic::rtc_clock, rtc_monotonic};
+use atsamd_hal::{fugit::ExtU64, rtc::rtic::rtc_clock, rtc_monotonic};
 use core::fmt::Write;
 use core::future::Future;
 use embedded_graphics::mono_font;

@@ -19,7 +19,7 @@ use pygamer::{entry, ButtonReader, DisplayDriver};
 use shared::prelude::_embedded_hal_timer_CountDown as Countdown;
 use shared::prelude::*;
 
-const DELAY_SECS: u64 = 3;
+const DELAY_SECS: u32 = 3;
 
 trait RtcExt: Sized {
     type Count: Copy + Eq + Default + core::fmt::Debug;
