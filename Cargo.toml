@@ -4,6 +4,7 @@ members = [
   "basic",
   "hal-clock-tree",
   "hal-rtc",
+  "hal-delay-ns",
   "monotonic-basic",
   "monotonic-disable-pend",
   "monotonic-stress",

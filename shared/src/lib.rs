@@ -96,6 +96,7 @@ pub struct SetupPackage {
     #[cfg(feature = "neopixels")]
     pub neopixels: NeoPixelsDriver,
     pub red_led: RedLed,
+    pub tc4: pac::Tc4,
     pub rtc: pac::Rtc,
     pub clocks: GenericClockController,
     pub mclk: pac::Mclk,
@@ -122,6 +123,7 @@ pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> S
         &mut peripherals.oscctrl,
         &mut peripherals.nvmctrl,
     );
+
     let pins = Pins::new(peripherals.port).split();
     let mut delay = Delay::new(core.SYST, &mut clocks);
     // Here is how this can be initialized using the clock v2 API instead
@@ -170,6 +172,7 @@ pub fn setup(mut peripherals: pac::Peripherals, core: pac::CorePeripherals) -> S
         #[cfg(feature = "neopixels")]
         neopixels,
         red_led: pins.led_pin.into(),
+        tc4: peripherals.tc4,
         rtc: peripherals.rtc,
         clocks,
         mclk: peripherals.mclk,
